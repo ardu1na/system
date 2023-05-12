@@ -1,5 +1,5 @@
 from django.forms import ModelForm, ModelChoiceField,\
-TextInput, URLInput, EmailInput, Select
+TextInput, URLInput, EmailInput, Select, CheckboxInput
 from comercial.models import Sale, Product, Subscription, Adj, Client, SetTier
 from django import forms
 
@@ -58,27 +58,13 @@ class AdjForm(ModelForm):
         
         
     
-class ChangeAdj(ModelForm):
-    
-    class Meta:
-        model = Adj
-        fields = ['notice_date', 'adj_percent' ]
+class ChangeAdj(AdjForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['type','service', 'client']
         
-        widgets = {
-            
-            'notice_date' : TextInput(attrs={'class':"datetimepicker form-control",
-            'id':"PublishDateTimeTextbox",
-            'type':"date",
-            'placeholder':"Notice Date",}),
-
-      
- 
-            'adj_percent' : TextInput(attrs={'class':"form-control",
-            'id':"adj_percent",
-            'placeholder':"Adjustment %",}),
-
-            
-        }
+        
+        
 
 class SaleForm(ModelForm):
     
@@ -282,3 +268,31 @@ class EditClientForm(ClientForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         del self.fields['created_at']
+        
+    class Meta:
+        fields = ['cancelled', 'date_can' , 'comment_can', 'fail_can']
+        
+        widgets = {
+            'cancelled' : CheckboxInput(attrs={
+                'class':"form-control",
+            'id':"cancelled",
+            'placeholder':"Cancelled?",}),
+            
+            'date_can' : TextInput(attrs={'class':"datetimepicker form-control",
+            'id':"PublishDateTimeTextbox",
+            'type':"date",
+            'placeholder':"Cancellation date",}),
+            
+            'fail_can' : Select(attrs={
+                'class':"default-select form-control wide mb-3",
+            'id':"fail_can",
+            'placeholder':"Do we fail?",}),
+            
+            'comment_can' : TextInput(attrs={
+                'class':"form-control",
+                'id':"comment_can",
+                'placeholder' : "Comment"
+                }
+            ),
+            
+        }

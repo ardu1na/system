@@ -274,12 +274,12 @@ class Adj(BaseMain):
        
     adj_percent = models.DecimalField(decimal_places=2, max_digits=16)
 
-    old_value = models.DecimalField(default=0, max_digits=40, decimal_places=2)
+    notice_date = models.DateField(null=True,blank=True)
+    done = models.BooleanField(default=False)
+
+    email_date = models.DateField(null=True, blank=True)
     
-    new_value = models.DecimalField(default=0, max_digits=40, decimal_places=2)
-    
-    dif = models.DecimalField(default=0, max_digits=40, decimal_places=2)          
-            
+    remind_sent = models.BooleanField(default=False)
     
     def __str__ (self):
         if self.type == "Service":
@@ -296,12 +296,6 @@ class Adj(BaseMain):
 
         
 
-    notice_date = models.DateField(null=True,blank=True)
-    done = models.BooleanField(default=False)
-
-    email_date = models.DateField(null=True, blank=True)
-    
-    remind_sent = models.BooleanField(default=False)
     
    
     def save(self, *args, **kwargs):
