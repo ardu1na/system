@@ -49,9 +49,11 @@ class Client(BaseComercial):
     @property
     def total_rr(self):
         total = 0
-        for service in self.services.filter(cancelled=False):
+        for service in self.services.filter(cancelled=False, deleted=False):
                 total += service.total
         return total
+    
+    
     
     # get the TIER in base of range of RR services
     @property
@@ -121,9 +123,9 @@ class Client(BaseComercial):
     source = models.CharField(max_length=50, choices=SOURCE_CHOICES, null=True, blank=False, default=None)
       
     # contact data
-    c1_name = models.CharField(max_length=150, blank=True, null=True)
-    c1_email = models.EmailField(blank=True, null=True)
-    c1_tel = models.CharField(max_length=150, blank=True, null=True)
+    name = models.CharField(max_length=150, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    tel = models.CharField(max_length=150, blank=True, null=True)
     admin_name = models.CharField(max_length=150, blank=True, null=True)
     admin_email = models.EmailField(blank=True, null=True)
     admin_tel = models.CharField(max_length=150, blank=True, null=True)
@@ -225,41 +227,31 @@ class Subscription(BaseComercial):
                 
                  
             
-
-        # monthly create new Income ############################# <----------------------------- how? a view? celery? chanels?
-        latest_income = self.incomes.latest('date')
-        last_income_date = latest_income.date if latest_income else None
-        if last_income_date and today.month != last_income_date.month:
-            new_income_date = last_income_date + relativedelta(months=1)
-            if today.month > new_income_date.month:
-                new_income_date = today.replace(day=1)
-            new_income = Income.objects.create(amount=self.total, subscription=self, date=new_income_date)
-            
-            
-            
-            
-            
-        # if  DELETED    
-        if self.cancelled or self.deleted:            
-            # Find the latest income for the subscription and stop it
+        else:
+            # monthly create new Income 
             latest_income = self.incomes.latest('date')
-            latest_income.subscription = None
-            latest_income.save() 
+            last_income_date = latest_income.date if latest_income else None
+            if last_income_date and today.month != last_income_date.month:
+                new_income_date = last_income_date + relativedelta(months=1)
+                if today.month > new_income_date.month:
+                    new_income_date = today.replace(day=1)
+                new_income = Income.objects.create(amount=self.total, subscription=self, date=new_income_date)
+                
+                                
+                
+            # if  DELETED    
+            if self.cancelled or self.deleted:            
+                # Find the latest income for the subscription and stop it
+                latest_income = self.incomes.latest('date')
+                latest_income.subscription = None
+                latest_income.save() 
 
         super().save(*args, **kwargs)       
         
         
         
         
-                                         
-        """# monthly CREATE INCOME INSTANCE with subscription total , until subscription is cancelled == True           
-        if not self.pk:
-            # create income
-            income = Income.objects.create(amount=self.total, subscription=self) 
-        if self.pk and self.cancelled:
-            pass # here stop income  
-        super(Subscription, self).save(*args, **kwargs) """ 
-
+                                        
         
         
                 
