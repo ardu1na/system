@@ -1,13 +1,154 @@
-"""from django.forms import ModelForm, \
-TextInput, URLInput, EmailInput, Select, Textarea
-from clients.models import Client,  SetTier
+from django.forms import ModelForm, ModelChoiceField,\
+TextInput, URLInput, EmailInput, Select
+from comercial.models import Sale, Product, Subscription, Adj, Client, SetTier
+from django import forms
 
+
+     
+       
+    
+class AdjForm(ModelForm):
+    client = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control wide mb-3',
+            'placeholder': 'type client name...',
+            'id': 'client',
+            'autocomplete': 'on',
+            'list': 'clients',
+        })
+    )
+    service = ModelChoiceField(
+        queryset=Subscription.objects.filter(state=True),
+        widget=Select(
+            attrs={
+                'class': "default-select form-control wide mb-3",
+                'id': "service",
+                'placeholder': "service",
+            }
+        ),
+        empty_label=' - ',
+        required=False  
+    )
+    
+    class Meta:
+        model = Adj
+        fields = ['notice_date', 'adj_percent',  'type' ]
+        
+        widgets = {
+            
+            'notice_date' : TextInput(attrs={'class':"datetimepicker form-control",
+            'id':"PublishDateTimeTextbox",
+            'type':"date",
+            'placeholder':"Notice Date",}),
+
+      
+ 
+            'adj_percent' : TextInput(attrs={'class':"form-control",
+            'id':"adj_percent",
+            'placeholder':"Adjustment %",}),
+
+            'type' : Select(attrs={
+                'class':"default-select form-control wide mb-3",
+                'id':"type",
+                'placeholder' : "type",
+                'empty_label': "Account/Service"
+                }
+            ),
+        }
+        
+        
+    
+class ChangeAdj(ModelForm):
+    
+    class Meta:
+        model = Adj
+        fields = ['notice_date', 'adj_percent' ]
+        
+        widgets = {
+            
+            'notice_date' : TextInput(attrs={'class':"datetimepicker form-control",
+            'id':"PublishDateTimeTextbox",
+            'type':"date",
+            'placeholder':"Notice Date",}),
+
+      
+ 
+            'adj_percent' : TextInput(attrs={'class':"form-control",
+            'id':"adj_percent",
+            'placeholder':"Adjustment %",}),
+
+            
+        }
+
+class SaleForm(ModelForm):
+    
+    client = ModelChoiceField(queryset=Client.objects.filter(deleted=False, cancelled=False), widget=Select(attrs={'class':"default-select form-control wide mb-3",
+            'id':"client",
+            'placeholder':"client",}))
+
+    product = ModelChoiceField(queryset=Product.objects.all(), widget=Select(attrs={'class':"default-select form-control wide mb-3",
+            'id':"product",
+            'placeholder':"product",}))
+
+    class Meta:
+        model = Sale
+        
+        fields = ['created_at', 'note', 'comments', 'status', 'price']
+        
+        
+        widgets = {
+            
+            'created_at' : TextInput(attrs={'class':"datetimepicker form-control",
+            'id':"PublishDateTimeTextbox",
+            'type':"date",
+            'placeholder':"Date",}),
+
+            'status' : Select(attrs={'class':"default-select form-control wide mb-3",
+            'id':"status",
+            'placeholder':"Status $",}),
+
+            'comments' : TextInput(attrs={'class':"form-control",
+            'id':"comments",
+            'placeholder':"Comments",}),        
+
+
+            'price' : TextInput(attrs={
+                'class':"form-control",
+                'id':"price",
+                'placeholder' : "Price"
+                }
+            ),
+
+            'note' : TextInput(attrs={
+                'class':"form-control",
+                'id':"note",
+                'placeholder' : "Notes"
+                }
+            ),
+
+        }
+
+
+
+class ClientSaleForm(SaleForm):
+   
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['client']
+    
+    
+    
+
+class EditSaleForm(SaleForm):        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['created_at']
         
 
 class TierConf(ModelForm):
     class Meta:
         model = SetTier
-        exclude = ['id', 'tier_v']
+        fields = '__all__'
         
         widgets = {
             'tier_i' : TextInput(attrs={'class':"form-control",
@@ -38,12 +179,12 @@ class ClientForm(ModelForm):
     class Meta:
         model = Client
         
-        exclude = ['id', 'cancelled', 'comment_can', 'date_can', 'fail_can']
+        fields = ['created_at', 'name', 'business_name', 'cuit', 'wop', 'source', 'email', 'tel', 'admin_name', 'admin_email', 'admin_tel', 'website']
         
         
         widgets = {
 
-            'date' : TextInput(attrs={'class':"datetimepicker form-control",
+            'created_at' : TextInput(attrs={'class':"datetimepicker form-control",
             'id':"PublishDateTimeTextbox",
             'type':"date",
             'placeholder':"Date"}),
@@ -52,7 +193,7 @@ class ClientForm(ModelForm):
             'id':"name",
             'placeholder':"Client",}),
             
-            'cuit' : TextInput(attrs={'class':"form-control",
+            'business_name' : TextInput(attrs={'class':"form-control",
             'id':"cuit",
             'placeholder':"CUIT",}),
 
@@ -60,7 +201,7 @@ class ClientForm(ModelForm):
             'id':"website",
             'placeholder':"Website",}),
 
-            'business_name' : TextInput(attrs={'class':"form-control",
+            'cuit' : TextInput(attrs={'class':"form-control",
             'id':"business_name",
             'placeholder':"Business name",}),
 
@@ -77,237 +218,26 @@ class ClientForm(ModelForm):
                 'placeholder':"WOP",}),
             
 
-            'c1_name' : TextInput(attrs={'class':"form-control",
-            'id':"c1_name",
-            'placeholder':"Full name",}),
-            
-            'c1_tel' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c1_tel",
-                'placeholder' : "Phone Number"
-                }
-            ),
-            
-            'c1_tel2' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c1_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
-
-            'c1_email' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c1_email",
-                'placeholder' : "Email"
-                }
-            ),
-            
-            
-            'c1_email2' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c1_email2",
-                'placeholder' : "Email 2"
-                }
-            ),
-            
-            
-            
-            'c2_name' : TextInput(attrs={'class':"form-control",
-            'id':"c2_name",
-            'placeholder':"Full name",}),
-            
-            'c2_tel' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c2_tel",
-                'placeholder' : "Phone Number"
-                }
-            ),
-            
-            'c2_tel2' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c2_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
-
-            'c2_email' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c2_email",
-                'placeholder' : "Email"
-                }
-            ),
-            
-            
-            'c2_email2' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c2_email2",
-                'placeholder' : "Email 2"
-                }
-            ),
-            
-            
-            'admin_name' : TextInput(attrs={'class':"form-control",
-            'id':"admin_name",
-            'placeholder':"Full name",}),
-            
-            'admin_tel' : TextInput(attrs={
-                'class':"form-control",
-                'id':"admin_tel",
-                'placeholder' : "Phone Number"
-                }
-            ),
-            
-            'admin_tel2' : TextInput(attrs={
-                'class':"form-control",
-                'id':"admin_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
-
-            'admin_email' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"admin_email",
-                'placeholder' : "Email"
-                }
-            ),
-            
-            
-            'admin_email2' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"admin_email2",
-                'placeholder' : "Email 2"
-                }
-            ),
-            
-            
-            'landing_page' : URLInput(attrs={'class':"form-control",
-            'id':"landing_page",
-            'placeholder':"Landing Page",}),
-
-
-        }
-        
-
-
-
-
-class EditClientForm(ModelForm):
-    
-    class Meta:
-        model = Client
-        
-        exclude = ['id',]
-        
-        widgets = {
-
-            'date' : TextInput(attrs={'class':"datetimepicker form-control",
-            'id':"PublishDateTimeTextbox",
-            'type':"date",
-            'placeholder':"Date",}),
-
-
             'name' : TextInput(attrs={'class':"form-control",
             'id':"name",
-            'placeholder':"Client",}),
-            
-            'cuit' : TextInput(attrs={'class':"form-control",
-            'id':"cuit",
-            'placeholder':"CUIT",}),
-
-            'website' : URLInput(attrs={'class':"form-control",
-            'id':"website",
-            'placeholder':"Website",}),
-
-            'business_name' : TextInput(attrs={'class':"form-control",
-            'id':"business_name",
-            'placeholder':"Business name",}),
-
-            'source' : Select(attrs={
-                'class':"default-select form-control wide mb-3",
-                'id':"source",
-                'placeholder' : "Source",
-                'empty_label':"Select the source",
-                }
-            ),
-
-            'wop' : Select(attrs={
-                'class':"default-select form-control wide mb-3",
-            'id':"wop",
-            'placeholder':"WOP",}),
-
-            
-            'c1_name' : TextInput(attrs={'class':"form-control",
-            'id':"c1_name",
             'placeholder':"Full name",}),
             
-            'c1_tel' : TextInput(attrs={
+            'tel' : TextInput(attrs={
                 'class':"form-control",
-                'id':"c1_tel",
+                'id':"tel",
                 'placeholder' : "Phone Number"
                 }
             ),
             
-            'c1_tel2' : TextInput(attrs={
+           
+            'email' : EmailInput(attrs={
                 'class':"form-control",
-                'id':"c1_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
-
-            'c1_email' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c1_email",
+                'id':"email",
                 'placeholder' : "Email"
                 }
             ),
             
             
-            'c1_email2' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c1_email2",
-                'placeholder' : "Email 2"
-                }
-            ),
-            
-            
-            
-            'c2_name' : TextInput(attrs={'class':"form-control",
-            'id':"c2_name",
-            'placeholder':"Full name",}),
-            
-            'c2_tel' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c2_tel",
-                'placeholder' : "Phone Number"
-                }
-            ),
-            
-            'c2_tel2' : TextInput(attrs={
-                'class':"form-control",
-                'id':"c2_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
-
-            'c2_email' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c2_email",
-                'placeholder' : "Email"
-                }
-            ),
-            
-            
-            'c2_email2' : EmailInput(attrs={
-                'class':"form-control",
-                'id':"c2_email2",
-                'placeholder' : "Email 2"
-                }
-            ),
             
             
             'admin_name' : TextInput(attrs={'class':"form-control",
@@ -321,13 +251,6 @@ class EditClientForm(ModelForm):
                 }
             ),
             
-            'admin_tel2' : TextInput(attrs={
-                'class':"form-control",
-                'id':"admin_tel2",
-                'placeholder' : "Phone 2"
-                }
-            ),
-
 
             'admin_email' : EmailInput(attrs={
                 'class':"form-control",
@@ -343,38 +266,19 @@ class EditClientForm(ModelForm):
                 'placeholder' : "Email 2"
                 }
             ),
-
-            'landing_page' : URLInput(attrs={'class':"form-control",
-            'id':"landing_page",
-            'placeholder':"Landing Page",}),
             
             
-            'cancelled' : Select(attrs={
-                'class':"form-select",
-            'id':"cancelled",
-            'placeholder':"Cancelled?",}),
-            
-            'date_can' : TextInput(attrs={'class':"datetimepicker form-control",
-            'id':"PublishDateTimeTextbox",
-            'type':"date",
-            'placeholder':"Cancellation date",}),
-            
-            
-            'fail_can' : Select(attrs={
-                'class':"form-select",
-            'id':"fail_can",
-            'placeholder':"Do we fail?",}),
-            
-            
-            'comment_can' : Textarea(attrs={
-                'class':"form-control",
-                'id':"comment_can",
-                'placeholder' : "Comment"
-                }
-            ),
 
 
         }
+        
 
 
-"""
+
+
+class EditClientForm(ClientForm):
+    
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['created_at']
