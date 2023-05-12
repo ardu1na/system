@@ -88,16 +88,12 @@ class Client(BaseComercial):
     
     # WAY OF PAY
     CASH='Cash'
-    CBU='CBU'
-    MP_IM='MP Imactions'
-    MP_P='MP Personal'
+    MP='Mercado Pago'
     BANK_TRANSFER='Bank Transfer'
     PAYPAL='PayPal'
     WOP_CHOICES=(
         (CASH, ('Cash')),
-        (CBU, ('CBU')),
-        (MP_IM, ('MP Imactions')),
-        (MP_P, ('MP Personal')),
+        (MP, ('Mercado Pago')),
         (BANK_TRANSFER, ('Bank Transfer')),
         (PAYPAL, ('PayPal')),    )
     wop = models.CharField(max_length=150, choices=WOP_CHOICES, null=True, blank=False, verbose_name='WOP', default=None)
@@ -110,7 +106,8 @@ class Client(BaseComercial):
     CALL='Call'
     EMAIL_MARKETING='Email Marketing'
     REFERRAL ='Referral'
-    RESELLER = "Reseller"
+    RESELLER = 'Reseller'
+    OTHER = 'Other'
     SOURCE_CHOICES=(
         (GOOGLE_ADS, ('Google Ads')),
         (FACEBOOK_ADS, ('Facebook Ads')),
@@ -119,7 +116,8 @@ class Client(BaseComercial):
         (CALL, ('Call')),
         (EMAIL_MARKETING, ('Email Marketing')),
         (REFERRAL, ('Referral')),
-        (RESELLER, ('Reseller'))    )
+        (RESELLER, ('Reseller')),
+        (OTHER, ('Other')))
     source = models.CharField(max_length=50, choices=SOURCE_CHOICES, null=True, blank=False, default=None)
       
     # contact data
